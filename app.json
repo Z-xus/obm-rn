@@ -3,7 +3,6 @@
     "name": "omb-ambulance-app",
     "slug": "omb-ambulance-app",
     "version": "1.0.0",
-
     "scheme": "omb-ambulance-app",
     "web": {
       "bundler": "metro",
@@ -21,28 +20,35 @@
     ],
     "experiments": {
       "typedRoutes": true,
-
       "tsconfigPaths": true
     },
-
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-
     "userInterfaceStyle": "light",
-
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.spammenauf.ombambulanceapp"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
+      },
+      "googleServicesFile": "./google-services.json",
+      "package": "com.spammenauf.ombambulanceapp"
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "684d7c7c-09a8-4642-a6ed-8a4f9bc4c0e8"
       }
     }
   }

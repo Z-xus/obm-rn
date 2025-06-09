@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "956504019901",
+    "project_id": "ombapp-81993",
+    "storage_bucket": "ombapp-81993.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:956504019901:android:ce65bd7da642ab66a8b8d4",
+        "android_client_info": {
+          "package_name": "com.example.client"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCaR6QV-A7G7mGtbHV8WsEjlGfel-41Klg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
