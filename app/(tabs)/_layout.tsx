@@ -16,6 +16,21 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="check"
+        options={{
+          title: 'Check',
+          tabBarIcon: ({ color }) => <TabBarIcon name="check" color={color} />,
+        }}
+      />
+
+      <Tabs.Screen
+        name="email"
+        options={{
+          title: 'Email',
+          tabBarIcon: ({ color }) => <TabBarIcon name="mail-forward" color={color} />,
+        }}
+      />
+      <Tabs.Screen
         name="phone"
         options={{
           title: 'Phone',

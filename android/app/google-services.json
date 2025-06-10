@@ -9,7 +9,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:956504019901:android:ce65bd7da642ab66a8b8d4",
         "android_client_info": {
-          "package_name": "com.spammenauf.ombambulanceapp"
+          "package_name": "com.example.client"
         }
       },
       "oauth_client": [],

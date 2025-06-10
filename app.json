@@ -35,10 +35,6 @@
     "assetBundlePatterns": [
       "**/*"
     ],
-    "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.spammenauf.ombambulanceapp"
-    },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
@@ -52,6 +48,9 @@
       "eas": {
         "projectId": "684d7c7c-09a8-4642-a6ed-8a4f9bc4c0e8"
       }
+    },
+    "ios": {
+      "bundleIdentifier": "com.spammenauf.ombambulanceapp"
     }
   }
 }
