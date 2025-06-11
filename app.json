@@ -3,7 +3,6 @@
     "name": "omb-ambulance",
     "slug": "omb-ambulance",
     "version": "1.0.0",
-
     "scheme": "omb-ambulance",
     "web": {
       "bundler": "metro",
@@ -11,6 +10,8 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
+      "@react-native-firebase/app",
+      "@react-native-firebase/auth",
       "expo-router",
       [
         "expo-dev-launcher",
@@ -21,29 +22,26 @@
     ],
     "experiments": {
       "typedRoutes": true,
-
       "tsconfigPaths": true
     },
-
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-
     "userInterfaceStyle": "light",
-
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": ["**/*"],
-    "ios": {
-      "supportsTablet": true
-    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "googleServicesFile": "./google-services.json",
+      "package": "org.omb.ambulance"
     }
   }
 }
