@@ -7,6 +7,7 @@ const routes = [
   { name: '/(tabs)/check', label: 'Go to Check' },
   { name: '/(tabs)/email', label: 'Go to Email' },
   { name: '/(tabs)/phone', label: 'Go to Phone' },
+  { name: '/map', label: 'Go to Maps' },
 ] as const;
 
 export default function Home() {
