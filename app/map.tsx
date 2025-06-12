@@ -11,6 +11,7 @@ export default function MapScreen() {
     const [errorMsg, setErrorMsg] = useState<string | null>(null);
     const [hasPermission, setHasPermission] = useState<boolean | null>(null);
     const [markerLocation, setMarkerLocation] = useState<{ latitude: number; longitude: number } | null>(null);
+    const [webViewReady, setWebViewReady] = useState(false);
 
     useEffect(() => {
         (async () => {
@@ -36,6 +37,16 @@ export default function MapScreen() {
             }
         })();
     }, []);
+
+    useEffect(() => {
+        if (location && webViewRef.current && webViewReady) {
+            webViewRef.current.postMessage(JSON.stringify({
+                type: 'recenterTo',
+                latitude: location.coords.latitude,
+                longitude: location.coords.longitude,
+            }));
+        }
+    }, [location, webViewReady]);
 
     const handleRecenter = () => {
         if (location && webViewRef.current) {
@@ -152,13 +163,20 @@ export default function MapScreen() {
         // Listen for messages from React Native
         document.addEventListener('message', function(event) {
             const data = JSON.parse(event.data);
-            if (data.type === 'recenter' && map) {
-                map.setView([${location?.coords.latitude || 0}, ${location?.coords.longitude || 0}], 16);
+            // if (data.type === 'recenter' && map) {
+            //     map.setView([${location?.coords.latitude || 0}, ${location?.coords.longitude || 0}], 16);
+            // }
+            if (data.type === 'recenterTo' && map && marker && userLocationMarker) {
+                map.setView([data.latitude, data.longitude], 16);
+                marker.setLatLng([data.latitude, data.longitude]);
+                userLocationMarker.setLatLng([data.latitude, data.longitude]);
+                updateCoordinates(data.latitude, data.longitude);
             }
         });
         
         // Initialize map when location is available
-        ${location ? `initMap(${location.coords.latitude}, ${location.coords.longitude});` : ''}
+        // ${location ? `initMap(${location.coords.latitude}, ${location.coords.longitude});` : ''}
+        initMap(0, 0);
     </script>
 </body>
 </html>`;
@@ -204,6 +222,7 @@ export default function MapScreen() {
                 javaScriptEnabled={true}
                 domStorageEnabled={true}
                 onMessage={handleWebViewMessage}
+                onLoadEnd={() => setWebViewReady(true)}
                 onError={(syntheticEvent) => {
                     const { nativeEvent } = syntheticEvent;
                     console.warn('WebView error: ', nativeEvent);
