@@ -41,7 +41,12 @@
         "backgroundColor": "#ffffff"
       },
       "googleServicesFile": "./google-services.json",
-      "package": "org.omb.ambulance"
+      "package": "org.omb.ambulance",
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "FOREGROUND_SERVICE"
+      ]
     }
   }
 }

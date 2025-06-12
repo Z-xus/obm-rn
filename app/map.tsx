@@ -1,15 +1,16 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { View, Text, TouchableOpacity, Alert } from 'react-native';
 import { WebView } from 'react-native-webview';
+import type { WebViewMessageEvent } from 'react-native-webview';
 import * as Location from 'expo-location';
 import { Ionicons } from '@expo/vector-icons';
 
 export default function MapScreen() {
-    const webViewRef = useRef(null);
-    const [location, setLocation] = useState(null);
-    const [errorMsg, setErrorMsg] = useState(null);
-    const [hasPermission, setHasPermission] = useState(null);
-    const [markerLocation, setMarkerLocation] = useState(null);
+    const webViewRef = useRef<WebView>(null);
+    const [location, setLocation] = useState<Location.LocationObject | null>(null);
+    const [errorMsg, setErrorMsg] = useState<string | null>(null);
+    const [hasPermission, setHasPermission] = useState<boolean | null>(null);
+    const [markerLocation, setMarkerLocation] = useState<{ latitude: number; longitude: number } | null>(null);
 
     useEffect(() => {
         (async () => {
@@ -30,7 +31,7 @@ export default function MapScreen() {
                     latitude: location.coords.latitude,
                     longitude: location.coords.longitude
                 });
-            } catch (error) {
+            } catch (error: any) {
                 setErrorMsg(`Failed to get location: ${error.message}`);
             }
         })();
@@ -38,15 +39,11 @@ export default function MapScreen() {
 
     const handleRecenter = () => {
         if (location && webViewRef.current) {
-            const script = `
-        map.setView([${location.coords.latitude}, ${location.coords.longitude}], 16);
-        true;
-      `;
-            webViewRef.current.postMessage(JSON.stringify({ type: 'recenter' }));
+            webViewRef.current?.postMessage(JSON.stringify({ type: 'recenter' }));
         }
     };
 
-    const handleWebViewMessage = (event) => {
+    const handleWebViewMessage = (event: WebViewMessageEvent) => {
         try {
             const data = JSON.parse(event.nativeEvent.data);
             if (data.type === 'markerMoved') {
