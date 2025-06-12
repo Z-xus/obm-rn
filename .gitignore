@@ -18,6 +18,8 @@ google-services.json
 
 ios
 android
+_ios
+_android
 
 # macOS
 .DS_Store
