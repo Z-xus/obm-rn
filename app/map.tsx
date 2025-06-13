@@ -4,6 +4,9 @@ import { WebView } from 'react-native-webview';
 import type { WebViewMessageEvent } from 'react-native-webview';
 import * as Location from 'expo-location';
 import { Ionicons } from '@expo/vector-icons';
+import * as FileSystem from 'expo-file-system';
+import { Asset } from 'expo-asset';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function MapScreen() {
     const webViewRef = useRef<WebView>(null);
@@ -12,6 +15,18 @@ export default function MapScreen() {
     const [hasPermission, setHasPermission] = useState<boolean | null>(null);
     const [markerLocation, setMarkerLocation] = useState<{ latitude: number; longitude: number } | null>(null);
     const [webViewReady, setWebViewReady] = useState(false);
+
+    const [htmlContent, setHtmlContent] = useState<string | null>(null);
+
+    useEffect(() => {
+        (async () => {
+            const asset = Asset.fromModule(require('../assets/map.html'));
+            await asset.downloadAsync(); // ensure it's downloaded
+            const fileUri = asset.localUri || asset.uri;
+            const html = await FileSystem.readAsStringAsync(fileUri);
+            setHtmlContent(html);
+        })();
+    }, []);
 
     useEffect(() => {
         (async () => {
@@ -70,120 +85,9 @@ export default function MapScreen() {
         }
     };
 
-    const htmlContent = `
-<!DOCTYPE html>
-<html>
-<head>
-    <title>OpenStreetMap</title>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <style>
-        body { margin: 0; padding: 0; }
-        #map { height: 100vh; width: 100vw; }
-        .location-info {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            background: white;
-            padding: 10px;
-            border-radius: 5px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            z-index: 1000;
-            font-family: Arial, sans-serif;
-            font-size: 12px;
-            max-width: 250px;
-        }
-    </style>
-</head>
-<body>
-    <div id="map"></div>
-    <div class="location-info">
-        <div><strong>Current Position:</strong></div>
-        <div id="coordinates">Loading...</div>
-        <div style="margin-top: 5px; font-size: 10px; color: #666;">
-            Drag the red marker to set precise location
-        </div>
-    </div>
-    
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script>
-        let map;
-        let marker;
-        let userLocationMarker;
-        
-        function initMap(lat, lng) {
-            map = L.map('map').setView([lat, lng], 16);
-            
-            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 19,
-                attribution: '© OpenStreetMap contributors'
-            }).addTo(map);
-            
-            // User location marker (blue, non-draggable)
-            userLocationMarker = L.marker([lat, lng], {
-                icon: L.divIcon({
-                    className: 'user-location-marker',
-                    html: '<div style="background-color: #2563EB; width: 20px; height: 20px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px rgba(0,0,0,0.3);"></div>',
-                    iconSize: [20, 20],
-                    iconAnchor: [10, 10]
-                })
-            }).addTo(map);
-            
-            // Draggable marker (red)
-            marker = L.marker([lat, lng], {
-                draggable: true,
-                icon: L.divIcon({
-                    className: 'draggable-marker',
-                    html: '<div style="background-color: #DC2626; width: 25px; height: 25px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px rgba(0,0,0,0.3); cursor: move;"></div>',
-                    iconSize: [25, 25],
-                    iconAnchor: [12, 12]
-                })
-            }).addTo(map);
-            
-            updateCoordinates(lat, lng);
-            
-            marker.on('dragend', function(e) {
-                const position = e.target.getLatLng();
-                updateCoordinates(position.lat, position.lng);
-                
-                window.ReactNativeWebView.postMessage(JSON.stringify({
-                    type: 'markerMoved',
-                    latitude: position.lat,
-                    longitude: position.lng
-                }));
-            });
-        }
-        
-        function updateCoordinates(lat, lng) {
-            document.getElementById('coordinates').innerHTML = 
-                'Lat: ' + lat.toFixed(6) + '<br>Lng: ' + lng.toFixed(6);
-        }
-        
-        // Listen for messages from React Native
-        document.addEventListener('message', function(event) {
-            const data = JSON.parse(event.data);
-            // if (data.type === 'recenter' && map) {
-            //     map.setView([${location?.coords.latitude || 0}, ${location?.coords.longitude || 0}], 16);
-            // }
-            if (data.type === 'recenterTo' && map && marker && userLocationMarker) {
-                map.setView([data.latitude, data.longitude], 16);
-                marker.setLatLng([data.latitude, data.longitude]);
-                userLocationMarker.setLatLng([data.latitude, data.longitude]);
-                updateCoordinates(data.latitude, data.longitude);
-            }
-        });
-        
-        // Initialize map when location is available
-        // ${location ? `initMap(${location.coords.latitude}, ${location.coords.longitude});` : ''}
-        initMap(0, 0);
-    </script>
-</body>
-</html>`;
-
     if (hasPermission === false) {
         return (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20, backgroundColor: 'white' }}>
+            <SafeAreaView style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20, backgroundColor: 'white' }}>
                 <View style={{ backgroundColor: '#FEE2E2', padding: 20, borderRadius: 10, width: '100%', maxWidth: 300 }}>
                     <Ionicons name="warning" size={32} color="#DC2626" style={{ marginBottom: 10 }} />
                     <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#DC2626', marginBottom: 10 }}>
@@ -201,7 +105,7 @@ export default function MapScreen() {
                         </Text>
                     </TouchableOpacity>
                 </View>
-            </View>
+            </SafeAreaView>
         );
     }
 
@@ -214,26 +118,29 @@ export default function MapScreen() {
     }
 
     return (
-        <View style={{ flex: 1, backgroundColor: 'white' }}>
-            <WebView
-                ref={webViewRef}
-                source={{ html: htmlContent }}
-                style={{ flex: 1 }}
-                javaScriptEnabled={true}
-                domStorageEnabled={true}
-                onMessage={handleWebViewMessage}
-                onLoadEnd={() => setWebViewReady(true)}
-                onError={(syntheticEvent) => {
-                    const { nativeEvent } = syntheticEvent;
-                    console.warn('WebView error: ', nativeEvent);
-                }}
-            />
+        <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
+            {htmlContent && (
+                <WebView
+                    ref={webViewRef}
+                    source={{ html: htmlContent }}
+                    style={{ flex: 1 }}
+                    javaScriptEnabled
+                    domStorageEnabled
+                    onMessage={handleWebViewMessage}
+                    onLoadEnd={() => setWebViewReady(true)}
+                    onError={(e) => {
+                        const { nativeEvent } = e;
+                        console.warn('WebView error: ', nativeEvent);
+                    }}
+                />
+            )}
+
 
             {/* Floating Recenter Button */}
             <TouchableOpacity
                 style={{
                     position: 'absolute',
-                    bottom: 80,
+                    bottom: 120,
                     right: 20,
                     backgroundColor: 'white',
                     padding: 15,
@@ -289,6 +196,6 @@ export default function MapScreen() {
                     <Text style={{ color: 'white', textAlign: 'center' }}>{errorMsg}</Text>
                 </View>
             )}
-        </View>
+        </SafeAreaView>
     );
 }
