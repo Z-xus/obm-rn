@@ -1,4 +1,3 @@
-````markdown
 # OMB Ambulance App (React Native with Expo + Firebase)
 
 This project is built using **Expo (Bare Workflow)** and integrates **React Native Firebase** modules for native Firebase support.
