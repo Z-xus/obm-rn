@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { View, Text, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, Alert, Linking } from 'react-native';
 import { WebView } from 'react-native-webview';
 import type { WebViewMessageEvent } from 'react-native-webview';
 import * as Location from 'expo-location';
@@ -98,7 +98,7 @@ export default function MapScreen() {
                     </Text>
                     <TouchableOpacity
                         style={{ backgroundColor: '#DC2626', paddingVertical: 12, paddingHorizontal: 16, borderRadius: 8 }}
-                        onPress={() => Location.requestForegroundPermissionsAsync()}
+                        onPress={() => { Linking.openSettings(); }}
                     >
                         <Text style={{ color: 'white', textAlign: 'center', fontWeight: '600' }}>
                             Grant Permission
