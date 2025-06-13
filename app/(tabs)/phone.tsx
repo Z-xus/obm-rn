@@ -1,8 +1,152 @@
-import { View, Text } from 'react-native';
+import { useState, useRef, useEffect } from 'react';
+import {
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+  SafeAreaView,
+  ActivityIndicator,
+} from 'react-native';
+import { PhoneAuthProvider, signInWithCredential, signInWithPhoneNumber } from 'firebase/auth';
+import { FirebaseRecaptchaVerifierModal } from 'expo-firebase-recaptcha';
+import { auth, app } from '../../utils/firebase';
 
-export default function Phone() {
-  return <View><Text>Phone Page</Text></View>
+export default function PhoneAuth() {
+  const recaptchaVerifier = useRef(null);
+  const [verificationId, setVerificationId] = useState<string | null>(null);
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [code, setCode] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged(setUser);
+    return unsubscribe;
+  }, []);
+
+  async function handleSendCode() {
+    if (!phoneNumber.trim()) {
+      Alert.alert('Error', 'Enter a valid phone number');
+      return;
+    }
+
+    let formatted = phoneNumber.trim();
+    if (!formatted.startsWith('+')) {
+      formatted = '+1' + formatted.replace(/\D/g, '');
+    }
+
+    try {
+      setLoading(true);
+      if (!recaptchaVerifier.current) {
+        Alert.alert('Error', 'Recaptcha not ready');
+        return;
+      }
+      const confirmation = await signInWithPhoneNumber(auth, formatted, recaptchaVerifier.current);
+      setVerificationId(confirmation.verificationId);
+      Alert.alert('Code sent', 'Check your phone');
+    } catch (e: any) {
+      Alert.alert('Error', e.message || 'Failed to send code');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleVerifyCode() {
+    if (!code.trim()) {
+      Alert.alert('Error', 'Enter verification code');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const credential = PhoneAuthProvider.credential(verificationId!, code);
+      await signInWithCredential(auth, credential);
+    } catch (e: any) {
+      Alert.alert('Error', e.message || 'Code verification failed');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleSignOut() {
+    await auth.signOut();
+    setVerificationId(null);
+    setPhoneNumber('');
+    setCode('');
+  }
+
+  if (user) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <Text>Signed in as: {user.phoneNumber}</Text>
+        <TouchableOpacity style={styles.button} onPress={handleSignOut}>
+          <Text style={styles.buttonText}>Sign Out</Text>
+        </TouchableOpacity>
+      </SafeAreaView>
+    );
+  }
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <FirebaseRecaptchaVerifierModal ref={recaptchaVerifier} firebaseConfig={app.options} />
+      {verificationId ? (
+        <>
+          <TextInput
+            style={styles.input}
+            placeholder="Enter 6-digit code"
+            onChangeText={setCode}
+            value={code}
+            keyboardType="number-pad"
+            maxLength={6}
+          />
+          <TouchableOpacity style={styles.button} onPress={handleVerifyCode} disabled={loading}>
+            {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Verify</Text>}
+          </TouchableOpacity>
+        </>
+      ) : (
+        <>
+          <TextInput
+            style={styles.input}
+            placeholder="+1XXXXXXXXXX"
+            onChangeText={setPhoneNumber}
+            value={phoneNumber}
+            keyboardType="phone-pad"
+          />
+          <TouchableOpacity style={styles.button} onPress={handleSendCode} disabled={loading}>
+            {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Send Code</Text>}
+          </TouchableOpacity>
+        </>
+      )}
+    </SafeAreaView>
+  );
 }
+
+const styles = StyleSheet.create({
+  container: { flex: 1, justifyContent: 'center', padding: 20 },
+  input: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    padding: 12,
+    marginBottom: 10,
+    borderRadius: 8,
+    fontSize: 16,
+  },
+  button: {
+    backgroundColor: '#dc2626',
+    padding: 15,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  buttonText: { color: '#fff', fontWeight: 'bold' },
+});
+
+
+// import { View, Text } from 'react-native';
+//
+// export default function Phone() {
+//   return <View><Text>Phone Page</Text></View>
+// }
 
 // import React, { useState, useEffect } from 'react';
 // import {

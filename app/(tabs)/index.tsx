@@ -1,5 +1,5 @@
 import { Link, Stack } from 'expo-router';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet } from 'react-native';
 import { Button } from '~/components/Button';
 
 
@@ -8,6 +8,7 @@ const routes = [
   { name: '/(tabs)/email', label: 'Go to Email' },
   { name: '/(tabs)/phone', label: 'Go to Phone' },
   { name: '/map', label: 'Go to Maps' },
+  { name: '/HomeScreen', label: 'Go to Maps New' },
 ] as const;
 
 export default function Home() {
